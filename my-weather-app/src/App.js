@@ -1,25 +1,48 @@
-import logo from './logo.svg';
+// App.js
+import React, { useState } from 'react';
 import './App.css';
+import WeatherCard from './WeatherCard';
 
-function App() {
+const App = () => {
+  const [city, setCity] = useState('');
+  const [weatherData, setWeatherData] = useState(null);
+  const [error, setError] = useState(null);
+
+  const apiKey = 'YOUR_API_KEY';
+
+  const fetchWeatherData = async () => {
+    try {
+      const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
+      if (!response.ok) {
+        throw new Error('City not found');
+      }
+      const data = await response.json();
+      setWeatherData(data);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      setWeatherData(null);
+    }
+  };
+
+  const handleSearch = () => {
+    fetchWeatherData();
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Weather Forecast</h1>
+      <input
+        type="text"
+        placeholder="Enter city"
+        value={city}
+        onChange={(e) => setCity(e.target.value)}
+      />
+      <button onClick={handleSearch}>Search</button>
+      {error && <p className="error">{error}</p>}
+      {weatherData && <WeatherCard weather={weatherData} />}
     </div>
   );
-}
+};
 
 export default App;
